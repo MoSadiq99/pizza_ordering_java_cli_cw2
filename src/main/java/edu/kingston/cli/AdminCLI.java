@@ -93,7 +93,6 @@ public class AdminCLI {
     }
 
     private static void viewLoyaltyProgram() {
-
     }
 
     private static void seasonalOffers() {
@@ -529,7 +528,6 @@ public class AdminCLI {
             }
         }
     }
-
 
     private static int getIntInput() {
         Scanner scanner = new Scanner(System.in);

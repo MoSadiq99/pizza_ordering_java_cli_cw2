@@ -11,6 +11,8 @@ import java.util.ArrayList;
 import java.util.List;
 
 public class UserRepository {
+
+    // Add user
     public void addUser(User user) {
         String sql = "INSERT INTO users (user_id, username, email, password, role) VALUES (?, ?, ?, ?, ?)";
         try (Connection conn = DatabaseManager.getConnection();
@@ -26,6 +28,7 @@ public class UserRepository {
         }
     }
 
+    // Get all users
     public List<User> getUsers() {
         List<User> users = new ArrayList<>();
         String sql = "SELECT * FROM users";

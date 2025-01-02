@@ -2,6 +2,7 @@ package edu.kingston.cli;
 
 import edu.kingston.domain.order.Order;
 import edu.kingston.domain.order.OrderStatus;
+import edu.kingston.domain.order.OrderStatusNotifier;
 import edu.kingston.domain.payment.CreditCardPayment;
 import edu.kingston.domain.payment.DigitalWalletPayment;
 import edu.kingston.domain.payment.LoyaltyProgram;
@@ -17,6 +18,8 @@ import edu.kingston.domain.user.command.CommandManager;
 import edu.kingston.domain.user.command.PlaceOrderCommand;
 import edu.kingston.domain.user.command.SubmitFeedbackCommand;
 import edu.kingston.repository.AppRepository;
+import edu.kingston.service.MappingService;
+import edu.kingston.service.NotificationService;
 
 import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
@@ -199,6 +202,7 @@ public class CustomerCLI {
 
             selectedToppings.add(selectedTopping);
         }
+
 
         pizzaBuilder.toppings(selectedToppings);
 
@@ -434,11 +438,19 @@ public class CustomerCLI {
         System.out.printf( "%-25s $%.2f\n", "Discount: ", discount);
         System.out.printf( "%-25s $%.2f\n", "Final Amount: ", order.getTotalAmountAfterDiscount());
 
-        if (order.getOrderType() == Order.OrderType.DELIVERY) {
-            simulateOrderUpdates(order);
-            System.out.printf( "%-25s %d min\n", "Estimated Delivery Time: ", 30);
+        //? Get delivery type and estimated delivery time
+        if (orderType == Order.OrderType.DELIVERY) {
+            System.out.print("\nEnter your address: ");
+            String userAddress = scanner.nextLine();
+            String shopAddress = "1600 Amphitheatre Parkway, Mountain View, CA 94043, USA";
+
+            MappingService mappingService = new MappingService();
+            String deliveryEstimate = mappingService.getDeliveryEstimate(shopAddress, userAddress);
+
+            System.out.printf("\nEstimated delivery time: %s\n", deliveryEstimate);
         }
 
+        // ? Real-time Tracking
         System.out.print("\nWould you like to track your order in real-time? (y/n): ");
         String choice = scanner.nextLine().trim().toLowerCase();
         if (choice.equals("y")) {
@@ -611,6 +623,12 @@ public class CustomerCLI {
 
     //! Order Tracking
     private static void dynamicOrderTracking(Order order) {
+
+
+        NotificationService notificationService = new NotificationService();
+        OrderStatusNotifier notifier = new OrderStatusNotifier(notificationService);
+        order.addObserver(notifier);
+
         boolean keepTracking = true;
 
         while (keepTracking) {

@@ -3,6 +3,7 @@ package edu.kingston.domain.order;
 import edu.kingston.domain.payment.PaymentStrategy;
 import edu.kingston.domain.pizza.Pizza;
 import edu.kingston.domain.user.User;
+import edu.kingston.service.NotificationService;
 
 import java.time.LocalDateTime;
 import java.util.EnumMap;
@@ -23,7 +24,7 @@ public class Order {
     private double discountAmount;
     private double totalAmountAfterDiscount;
     private Map<OrderStatus, LocalDateTime> statusTimestamps = new EnumMap<>(OrderStatus.class);
-
+    private NotificationService notificationService;
 
     private Order(OrderBuilder builder) {
         this.orderId = generateID();
@@ -54,7 +55,7 @@ public class Order {
     private void notifyObservers() {
         for (OrderStatusObserver observer : observers) {
             try {
-                observer.updateOrderStatus(this, status);
+                observer.updateOrderStatus(this, status, notificationService);
             } catch (Exception e) {
                 System.err.println("Failed to notify observer: " + e.getMessage());
             }
@@ -154,6 +155,11 @@ public class Order {
     //? Estimated Delivery Time
     public LocalDateTime getEstimatedDeliveryTime() {
         return estimatedDeliveryTime;
+    }
+
+
+    public void setNotificationService(NotificationService notificationService) {
+        this.notificationService = notificationService;
     }
 
     public void setEstimatedDeliveryTime(LocalDateTime estimatedDeliveryTime) { this.estimatedDeliveryTime = estimatedDeliveryTime; }

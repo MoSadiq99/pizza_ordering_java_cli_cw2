@@ -39,6 +39,7 @@ public class AppRepository {
     private Map<String, List<PromotionDecorator>> addonPromotions = new HashMap<>();
     private FeedbackSystem feedbackSystem = new FeedbackSystem();
 
+    // Getters and Setters
     public List<User> getUsers() {
         return userRepository.getUsers();
     }
@@ -91,6 +92,7 @@ public class AppRepository {
         return availableCheeses;
     }
 
+    //? Promotions
     public void applyPromotionToAddon(Promotion promotion) {
         String targetType = promotion.getTargetAddonType();
 
@@ -105,19 +107,6 @@ public class AppRepository {
         }
     }
 
-    public void applyPromotionToSpecificAddon(Promotion promotion) {
-        List<PizzaAddon> addons = getAddonsByType(promotion.getTargetAddonType());
-        if (addons != null) {
-            for (PizzaAddon addon : addons) {
-                if (addon.getType().equalsIgnoreCase(promotion.getTargetAddonName())) {
-                    PromotionDecorator decorator = new PromotionDecorator(addon, promotion);
-                    addonPromotions.computeIfAbsent(addon.getType(), k -> new ArrayList<>()).add(decorator);
-                }
-            }
-        }
-    }
-
-
     public List<PizzaAddon> getAddonsByType(String type) {
         switch (type.toLowerCase()) {
             case "topping":
@@ -131,23 +120,6 @@ public class AppRepository {
             default:
                 return null;
         }
-    }
-
-    public PizzaAddon getAddonWithPromotion(PizzaAddon addon) {
-        List<PromotionDecorator> promotions = addonPromotions.get(addon.getType());
-        if (promotions != null && !promotions.isEmpty()) {
-            // Return the addon wrapped in its promotion decorator
-            return promotions.stream()
-                    .filter(p -> p.getType().equals(addon.getType()))
-                    .findFirst()
-                    .orElse(new PromotionDecorator(addon, null));
-        }
-        return addon;
-    }
-
-    public void removePromotion(Promotion promotion) {
-        String targetType = promotion.getTargetAddonType();
-        addonPromotions.remove(targetType);
     }
 
     public void addPromotion(Promotion promotion) {
